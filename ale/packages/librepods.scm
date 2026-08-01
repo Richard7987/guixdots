@@ -6,25 +6,11 @@
 ;;; directas (tokio, bluer, iced 0.14 con features tokio+image, dbus,
 ;;; libpulse-binding, ksni, image/imageproc/ab_glyph, clap, serde...).
 ;;;
-;;; BLOQUEADOR REAL DE ESCALA (no un problema de enfoque, un problema de
-;;; volumen): su Cargo.lock tiene 577 crates resueltos. Escribir eso a mano
-;;; en Guile es inviable y garantizadamente propenso a errores -- no hay
-;;; forma responsable de fabricar 577 stanzas `(define-public rust-...)` sin
-;;; herramientas reales.
-;;;
-;;; CAMINO REAL (pendiente, requiere Guix instalado -- no disponible en esta
-;;; sesión NixOS): igual que con slides.scm, Guix tiene un importador
-;;; recursivo también para Rust/crates.io:
-;;;
-;;;   cd linux-rust/  # sourceRoot real del repo, igual que en Nix
-;;;   guix import crate -r --lockfile=Cargo.lock librepods
-;;;
-;;; Esto genera automáticamente la enorme mayoría de las 577 definiciones
-;;; rust-* (Guix ya tiene un subconjunto grande de crates.io empaquetado de
-;;; antes -- el importador solo escribe las que faltan). Revisar el output:
-;;; el importador marca con TODO cualquier crate con alta sospecha de código
-;;; vendorizado (Guix es estricto con "unbundling"), hay que resolver esos
-;;; casos a mano antes de que el árbol compile.
+;;; Las 576 fuentes de crates.io (`guix import crate --lockfile=Cargo.lock
+;;; librepods`, corrido en vivo dentro de la VM, 2026-08-01) viven en
+;;; rust-crates.scm de este mismo canal, no acá -- 576 `crate-source` +
+;;; una tabla `define-cargo-inputs` (convención moderna de Guix,
+;;; `#:cargo-inputs` está deprecado, ver guix/build-system/cargo.scm).
 ;;;
 ;;; RUNTIME (esto sí se resuelve acá, es independiente del árbol de crates):
 ;;; iced/wgpu cargan Vulkan/Wayland/libxkbcommon vía dlopen en tiempo de
@@ -41,6 +27,7 @@
   #:use-module ((guix licenses) #:prefix license:)
   #:use-module (guix build-system cargo)
   #:use-module (guix gexp)
+  #:use-module (ale packages rust-crates)
   #:use-module (gnu packages pkg-config)
   #:use-module (gnu packages glib) ; dbus
   #:use-module (gnu packages freedesktop) ; wayland
@@ -62,15 +49,10 @@
        (file-name (git-file-name name version))
        (sha256
         (base32
-         "0000000000000000000000000000000000000000000000000000")))) ; AJUSTAR: `guix download` real
+         "0h8w9kpigzwc1r9sxrnhbj2lwkyw1sr3i3ssnlp9idl13ay1iqhj"))))
     (build-system cargo-build-system)
     (arguments
      (list
-      #:cargo-inputs
-      ;; PENDIENTE: reemplazar por la lista real generada con
-      ;; `guix import crate -r --lockfile=Cargo.lock librepods` --
-      ;; placeholder vacío intencional, no fabricar entradas a ciegas.
-      '()
       #:phases
       #~(modify-phases %standard-phases
           (add-after 'unpack 'enter-subdirectory
@@ -95,7 +77,11 @@
                                 #$wayland
                                 #$libxkbcommon))))))))))
     (native-inputs (list pkg-config))
-    (inputs (list dbus libpulseaudio fontconfig freetype))
+    ;; cargo-inputs: convención moderna (no #:cargo-inputs, deprecado) --
+    ;; el lookup de 'librepods vive en rust-crates.scm de este canal.
+    (inputs
+     (append (cargo-inputs 'librepods #:module '(ale packages rust-crates))
+             (list dbus pulseaudio fontconfig freetype)))
     (home-page "https://github.com/kavishdevar/librepods")
     (synopsis "Control de AirPods (ruido, batería, etc.) en Linux")
     (description "LibrePods controla AirPods desde Linux: cancelación de
