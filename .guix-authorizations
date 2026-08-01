@@ -1,0 +1,9 @@
+;; Lista de firmantes autorizados de este canal, requerida por el
+;; mecanismo de autenticación de `guix pull` a partir del commit de
+;; introducción declarado en channels.scm. Mismo formato que el
+;; .guix-authorizations real del propio repo de Guix.
+
+(authorizations
+ (2
+  (("91CA 581F 7B78 01E8 8673  D228 DBD5 F61D 8A0A 14D7"
+    (name "ale")))))
