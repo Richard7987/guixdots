@@ -40,7 +40,7 @@
   #:use-module (guix git-download)
   #:use-module ((guix licenses) #:prefix license:)
   #:use-module (guix build-system cargo)
-  #:use-module (guix build-utils)
+  #:use-module (guix gexp)
   #:use-module (gnu packages pkg-config)
   #:use-module (gnu packages glib) ; dbus
   #:use-module (gnu packages freedesktop) ; wayland

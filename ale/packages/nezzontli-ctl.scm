@@ -16,12 +16,8 @@
 ;;; Faltan: python-cowsay, python-textual-image, python-flatlatex (ninguno
 ;;; encontrado en ningún canal indexado) -- empaquetados acá desde cero.
 ;;;
-;;; IMPORTANTE: los campos `sha256` de abajo son los que reporta PyPI/GitHub
-;;; en el momento de escribir esto (2026-07-31), pero NO fueron verificados
-;;; con `guix hash`/`guix download` real -- esta máquina corre NixOS, sin Guix
-;;; instalado. Antes de construir esto en la VM/Guix real, correr
-;;; `guix download <url>` sobre cada uno y confirmar que coincide (o dejar que
-;;; `guix build` falle y te dé el hash correcto, patrón estándar de Guix).
+;;; Hashes verificados en vivo con `guix download`/`guix hash -rx` dentro de
+;;; una VM Guix 1.5.0 real (2026-08-01, guix acf3d19).
 
 (define-module (ale packages nezzontli-ctl)
   #:use-module (guix packages)
@@ -30,6 +26,7 @@
   #:use-module ((guix licenses) #:prefix license:)
   #:use-module (guix build-system pyproject)
   #:use-module (gnu packages python-xyz)
+  #:use-module (gnu packages python-build)
   #:use-module (gnu packages check))
 
 ;; --- python-cowsay ---
@@ -47,9 +44,10 @@
        (file-name (git-file-name name version))
        (sha256
         (base32
-         "0000000000000000000000000000000000000000000000000000")))) ; AJUSTAR: correr `guix download` sobre el tarball del tag v6.1
+         "1qaawnckyy1d9ql17d72rl5fn7q5bx18jf78k4ljd9bl7hg6714m"))))
     (build-system pyproject-build-system)
-    (native-inputs (list python-pytest python-coverage))
+    ;; backend detectado en build real (2026-08-01): setuptools.build_meta
+    (native-inputs (list python-setuptools python-wheel python-pytest python-coverage))
     (arguments (list #:tests? #f)) ; pytest+coverage alcanzan pero no hace falta correrlos para un TUI wrapper chico
     (home-page "https://github.com/VaasuDevanS/cowsay-python")
     (synopsis "Cowsay para Python")
@@ -71,10 +69,12 @@
                             "flatlatex-" version ".tar.gz"))
        (sha256
         (base32
-         "0000000000000000000000000000000000000000000000000000")))) ; AJUSTAR: sha256 real reportado por PyPI es 5170e1bcd4fccb52bdbdff300b14b68730483bc46f6a2a89f7ae2bb024e4d139 (hex) -- convertir a base32 con `guix hash -x` o dejar que el build falle y tomar el valor sugerido
+         "0ffiwhjb0axfyy4jlskgqhxlhc47nqa0nc7zpnym5jzwsjyf2w2i"))))
     (build-system pyproject-build-system)
     (propagated-inputs (list python-regex))
-    (native-inputs (list python-pytest))
+    ;; backend detectado en build real (2026-08-01): setuptools.build_meta,
+    ;; sin declararlo el build falla con "ModuleNotFoundError: setuptools".
+    (native-inputs (list python-setuptools python-wheel python-pytest))
     (home-page "https://github.com/rtmigo/flatlatex")
     (synopsis "Convierte LaTeX matemático a texto unicode plano")
     (description "@code{flatlatex} traduce expresiones LaTeX matemáticas a su
@@ -97,9 +97,12 @@ representación equivalente en texto unicode (sin renderizar imágenes).")
                             "textual_image-" version ".tar.gz"))
        (sha256
         (base32
-         "0000000000000000000000000000000000000000000000000000")))) ; AJUSTAR: sha256 real PyPI 8ca0cee2bfcd7734de5b16a1936da226b77b745e28830d9cf2bc202cb70e43ee (hex) -- convertir a base32
+         "1vj31svjq85wyaf0v0r8brs7pdr6l9nr788nbgg38xydpzicx84c"))))
     (build-system pyproject-build-system)
+    ;; backend detectado en build real (2026-08-01): hatchling.build
+    (native-inputs (list python-hatchling))
     (propagated-inputs (list python-pillow python-rich python-textual))
+    (arguments (list #:tests? #f)) ; pide pytest (no declarado, no hace falta para un widget usado como dependencia)
     (home-page "https://github.com/lnqs/textual-image")
     (synopsis "Renderiza imágenes en terminal (Kitty Graphics Protocol) para Rich/Textual")
     (description "Widget de Textual/Rich para mostrar imágenes rasterizadas en
@@ -111,18 +114,19 @@ como fallback).")
 (define-public nezzontli-ctl
   (package
     (name "nezzontli-ctl")
-    (version "0.1.0") ; AJUSTAR: confirmar contra el tag/rev real que quieras pinear del repo
+    (version "0.1.0-1.97b83a8") ; pineado a HEAD de main al momento de escribir esto -- sin releases/tags en el repo
     (source
      (origin
        (method git-fetch)
        (uri (git-reference
              (url "https://github.com/Richard7987/nezzontli-ctl")
-             (commit "main"))) ; AJUSTAR: pinear a un commit/tag real, "main" no es reproducible
+             (commit "97b83a82103197915fefaa3b0daf649f14f57280")))
        (file-name (git-file-name name version))
        (sha256
         (base32
-         "0000000000000000000000000000000000000000000000000000")))) ; AJUSTAR: `guix download`/`guix hash` sobre el checkout real
+         "1l72i4c7x8m1wd0cgp5qb87ycphncq2b605fg9kc7nsij9ix16sb"))))
     (build-system pyproject-build-system)
+    (native-inputs (list python-hatchling)) ; backend real detectado en build (2026-08-01)
     (propagated-inputs
      (list python-textual
            python-pyfiglet

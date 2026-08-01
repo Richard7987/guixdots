@@ -23,6 +23,7 @@
 (define-module (ale packages clamui)
   #:use-module (guix packages)
   #:use-module (guix git-download)
+  #:use-module (guix gexp)
   #:use-module ((guix licenses) #:prefix license:)
   #:use-module (guix build-system pyproject)
   #:use-module (gnu packages glib)
@@ -31,8 +32,8 @@
   #:use-module (gnu packages python-xyz)
   #:use-module (gnu packages python-web)
   #:use-module (gnu packages python-crypto)
-  #:use-module (gnu packages gstreamer)
-  #:use-module (gnu packages glib-networking))
+  #:use-module (gnu packages python-build)
+  #:use-module (gnu packages gstreamer))
 
 (define-public clamui
   (package
@@ -47,7 +48,7 @@
        (file-name (git-file-name name version))
        (sha256
         (base32
-         "0000000000000000000000000000000000000000000000000000")))) ; AJUSTAR: `guix download` real sobre el tag v0.3.0
+         "1nah7sy81igrz85jgp41y1zvwgn26axyy3gnqimhbmwsjhd6wfwd"))))
     ;; glib-or-gtk-build-system envuelve pyproject-build-system + las fases
     ;; extra de glib-compile-schemas/gtk-icon-cache (equivalente combinado a
     ;; buildPythonApplication + wrapGAppsHook4 en la derivación Nix original).
@@ -57,6 +58,26 @@
       #:tests? #f ; mismo motivo que en Nix: tests viven en tests/ pero requieren un display GTK real, se corren upstream vía pytest, no acá
       #:phases
       #~(modify-phases %standard-phases
+          ;; pyproject.toml pinea 8 de sus 10 deps a versiones más nuevas que
+          ;; las empaquetadas en Guix (confirmado build real, 2026-08-01:
+          ;; sanity-check falla en cadena por ContextualVersionConflict, una
+          ;; dependencia a la vez) -- relaja esos mínimos, misma idea que
+          ;; pythonRelaxDepsHook en nixpkgs. Son pines preventivos de
+          ;; upstream, no por uso real de API nueva -- las versiones de Guix
+          ;; (confirmadas contra `guix show` en vivo) funcionan igual.
+          ;; psutil>=7.2.2 y keyring>=25.7.0 SÍ coinciden exacto con Guix --
+          ;; no hace falta tocarlas.
+          (add-after 'unpack 'relax-version-pins
+            (lambda _
+              (substitute* "pyproject.toml"
+                (("PyGObject>=3\\.56\\.3") "PyGObject")
+                (("pycairo>=1\\.29\\.0") "pycairo")
+                (("matplotlib>=3\\.11\\.0") "matplotlib")
+                (("requests>=2\\.34\\.2") "requests")
+                (("urllib3>=2\\.7\\.0") "urllib3")
+                (("certifi>=2026\\.6\\.17") "certifi")
+                (("Pillow>=12\\.2\\.0") "Pillow")
+                (("cairosvg>=2\\.9\\.0") "cairosvg"))))
           ;; Iconos + .desktop + metainfo viven fuera del paquete Python
           ;; (data/ e icons/ en la raíz del repo) -- mismo postInstall que en
           ;; pkgs/clamui.nix.
