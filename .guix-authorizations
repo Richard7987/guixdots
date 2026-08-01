@@ -1,9 +1,12 @@
-;; Lista de firmantes autorizados de este canal, requerida por el
-;; mecanismo de autenticación de `guix pull` a partir del commit de
-;; introducción declarado en channels.scm. Mismo formato que el
-;; .guix-authorizations real del propio repo de Guix.
+;; Este archivo lista las llaves OpenPGP autorizadas a firmar commits en
+;; este repositorio. Mismo formato que el .guix-authorizations real del
+;; propio repo de Guix (confirmado contra el original, codeberg.org/guix/
+;; guix/raw/branch/master/.guix-authorizations) -- mi primer intento tenía
+;; mal la forma: "(version 0)" explícito, no un número pelado, y la lista
+;; de pares NO va anidada en otra lista.
 
 (authorizations
- (2
-  (("91CA 581F 7B78 01E8 8673  D228 DBD5 F61D 8A0A 14D7"
-    (name "ale")))))
+ (version 0)
+
+ (("91CA 581F 7B78 01E8 8673  D228 DBD5 F61D 8A0A 14D7"
+   (name "ale"))))
