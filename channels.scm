@@ -92,9 +92,14 @@
         (name 'guixdots)
         (url "https://github.com/Richard7987/guixdots.git")
         (branch "main") ; NO "master" -- el mirror de GitHub usa "main" por default
+        ;; Introduction apunta al commit donde .guix-authorizations quedó
+        ;; bien formado (378f832), NO al primer commit real del repo
+        ;; (846c407) -- los commits entre medio no tienen el archivo (o lo
+        ;; tienen mal formado), y la cadena de autenticación de guix pull
+        ;; necesita que exista y sea válido desde el punto de partida.
         (introduction
          (make-channel-introduction
-          "846c407395396cb54d4d9e28dbfcc83aeee750fd"
+          "378f832398651bbd7efeeca96b0ca7685fb973ee"
           (openpgp-fingerprint
            "91CA 581F 7B78 01E8 8673  D228 DBD5 F61D 8A0A 14D7"))))
        %default-channels)
