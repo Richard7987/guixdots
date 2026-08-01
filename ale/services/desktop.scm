@@ -29,13 +29,12 @@
   #:use-module (gnu services dbus)
   #:use-module (gnu services pm)
   #:use-module (gnu services xorg) ; screen-locker-service-type si hace falta
-  #:use-module (gnu packages wm) ; hyprland
+  #:use-module (gnu packages window-management) ; hyprland (gnu packages wm re-exporta un alias deprecado)
   #:use-module (gnu packages freedesktop) ; xdg-desktop-portal-hyprland
   #:use-module (gnu packages gnome) ; nautilus, gvfs
-  #:use-module (gnu packages file-systems) ; yazi
   #:use-module (gnu packages fonts)
-  #:use-module (gnu packages kde-frameworks) ; kleopatra, plasma-integration, breeze
-  #:use-module (gnu packages kde)
+  #:use-module (gnu packages kde-pim) ; kleopatra
+  #:use-module (gnu packages kde-plasma) ; breeze, plasma-integration
   #:export (%ale-desktop-services
             %ale-desktop-packages))
 
@@ -63,14 +62,16 @@
         (service gnome-keyring-service-type) ; secret service -- credenciales de DMS/CalDAV/etc, mismo motivo que en desktop.nix
         (service power-profiles-daemon-service-type)
         (service upower-service-type)
-        (service polkit-wheel-service))) ; agentes gráficos de polkit corriendo como wheel puedan autorizar
+        polkit-wheel-service)) ; ya es un <service> completo, no un service-type -- agentes gráficos de polkit corriendo como wheel pueden autorizar
 
 (define %ale-desktop-packages
   (list hyprland
         xdg-desktop-portal-hyprland
         nautilus
         gvfs
-        yazi
+        ;; yazi -- SACADO: no está en el canal oficial `guix` pese a lo que
+        ;; sugería una investigación previa (verificado en vivo, búsqueda
+        ;; vacía). Nautilus alcanza por ahora.
         kleopatra
         breeze
         plasma-integration

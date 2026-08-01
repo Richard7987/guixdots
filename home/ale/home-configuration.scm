@@ -110,7 +110,7 @@ vpn() {
 }
 
 pfetch
-"))))))
+")))))
 
    (service home-gpg-agent-service-type
             (home-gpg-agent-configuration

@@ -24,15 +24,62 @@
 ;;; canal oficial `guix`. También es donde vive el canal propio de
 ;;; Noctalia (noctalia.scm, no usado en esta config -- se optó por
 ;;; DankMaterialShell), por si algún día se reconsidera.
+;;;
+;;; saayix, abbe, bugchan, small-guix: canales de terceros agregados a
+;;; pedido explícito para tapar huecos puntuales de paquetes que no están
+;;; en el canal oficial `guix` ni en nonguix/Rosenthal -- ver
+;;; home-configuration.scm para qué exactamente sale de cada uno. Todas
+;;; las introductions (commit + fingerprint) copiadas de
+;;; git.sr.ht/~whereiseveryone/toys/channels.scm (el propio índice de
+;;; toys.whereis.social publica su channels.scm completo con
+;;; introductions ya armadas -- no son inventadas, pero SÍ son de
+;;; mantenedores individuales, no del proyecto Guix -- ver el veredicto
+;;; de confiabilidad en NOTES.md sobre toys.whereis.social).
 (cons* (channel
+        (name 'saayix) ; yazi, zen-browser-bin
+        (url "https://codeberg.org/look/saayix")
+        (branch "main")
+        (introduction
+         (make-channel-introduction
+          "12540f593092e9a177eb8a974a57bb4892327752"
+          (openpgp-fingerprint
+           "3FFA 7335 973E 0A49 47FC  0A8C 38D5 96BE 07D3 34AB"))))
+       (channel
+        (name 'abbe) ; oh-my-zsh
+        (url "https://codeberg.org/group/guix-modules")
+        (branch "mainline")
+        (introduction
+         (make-channel-introduction
+          "8c754e3a4b49af7459a8c99de130fa880e5ca86a"
+          (openpgp-fingerprint
+           "F682 CDCC 39DC 0FEA E116  20B6 C746 CFA9 E74F A4B0"))))
+       (channel
+        (name 'bugchan) ; powerlevel10k
+        (url "https://gitlab.com/bigbookofbug/bugchan")
+        (branch "master")
+        (introduction
+         (make-channel-introduction
+          "c2ed428f3a41c1fce149b245253f9f5382f42efd"
+          (openpgp-fingerprint
+           "ACF7 CA25 C886 9B8A 1669  67D7 7350 3372 E2C6 3BCF"))))
+       (channel
+        (name 'small-guix) ; idea-ultimate (versión vieja, ~2023.2 -- ver NOTES.md)
+        (url "https://codeberg.org/fishinthecalculator/small-guix")
+        (branch "main")
+        (introduction
+         (make-channel-introduction
+          "f260da13666cd41ae3202270784e61e062a3999c"
+          (openpgp-fingerprint
+           "8D10 60B9 6BB8 292E 829B  7249 AED4 1CC1 93B7 01E2"))))
+       (channel
         (name 'rosenthal)
         (url "https://codeberg.org/hako/rosenthal")
-        ;; Sin introduction: no se pudo confirmar el commit+fingerprint
-        ;; exactos sin acceso a Guix real en esta sesión -- AJUSTAR con
-        ;; `guix pull -C channels.scm` real y copiar lo que sugiera, o
-        ;; revisar el propio README de Rosenthal para su introduction
-        ;; documentada.
-        )
+        (branch "trunk") ; NO "master" -- confirmado con guix real, "master" no existe en este repo
+        (introduction
+         (make-channel-introduction
+          "7677db76330121a901604dfbad19077893865f35"
+          (openpgp-fingerprint
+           "13E7 6CD6 E649 C28C 3385  4DF5 5E5A A665 6149 17F7"))))
        (channel
         (name 'nonguix)
         (url "https://gitlab.com/nonguix/nonguix")
@@ -44,6 +91,7 @@
        (channel
         (name 'guixdots)
         (url "https://github.com/Richard7987/guixdots.git")
+        (branch "main") ; NO "master" -- el mirror de GitHub usa "main" por default
         (introduction
          (make-channel-introduction
           "846c407395396cb54d4d9e28dbfcc83aeee750fd"

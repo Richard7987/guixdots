@@ -28,7 +28,7 @@
              (nongnu packages linux)
              (nongnu system linux-initrd)
              (gnu packages linux)
-             (gnu packages certs)
+             (gnu packages nss) ; nss-certs
              (gnu packages version-control)
              (gnu packages vim)
              (gnu packages curl)
@@ -99,8 +99,7 @@
 
   (bootloader (bootloader-configuration
                (bootloader grub-efi-bootloader)
-               (targets '("/boot/efi"))
-               (keep-old-entries? #t)))
+               (targets '("/boot/efi"))))
 
   (file-systems (append %ale-file-systems %base-file-systems))
 
@@ -115,7 +114,7 @@
                %base-user-accounts))
 
   (packages
-   (append (list git vim curl wget nss-certs)
+   (append (list git vim curl wget) ; nss-certs ya viene en %base-packages, no hace falta declararlo
            %ale-graphics-packages
            %ale-desktop-packages
            %ale-yubikey-packages
