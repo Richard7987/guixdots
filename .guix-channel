@@ -1,6 +1,5 @@
 (channel
   (version 0)
-  (directory ".")
   ;; ale/services/graphics.scm y tailscale.scm usan (nongnu packages nvidia),
   ;; (nongnu services nvidia) y (rosenthal services networking) --
   ;; sin declarar la dependencia acá, `guix pull` intenta compilar este
