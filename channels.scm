@@ -35,6 +35,15 @@
 ;;; introductions ya armadas -- no son inventadas, pero SÍ son de
 ;;; mantenedores individuales, no del proyecto Guix -- ver el veredicto
 ;;; de confiabilidad en NOTES.md sobre toys.whereis.social).
+;;;
+;;; use-modules explícito: aunque `guix pull -C` ya provee `channel`/
+;;; `%default-channels` al evaluar este archivo con -C, Guix TAMBIÉN
+;;; escanea cualquier .scm en la raíz del propio repo como módulo
+;;; potencial del canal guixdots -- sin esto, esa segunda pasada de
+;;; compilación fallaba con "Unbound variable: channel" (confirmado en
+;;; vivo, 2026-08-01).
+(use-modules (guix channels))
+
 (cons* (channel
         (name 'saayix) ; yazi, zen-browser-bin
         (url "https://codeberg.org/look/saayix")
