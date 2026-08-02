@@ -1,3 +1,27 @@
 (channel
   (version 0)
-  (directory "."))
+  (directory ".")
+  ;; ale/services/graphics.scm y tailscale.scm usan (nongnu packages nvidia),
+  ;; (nongnu services nvidia) y (rosenthal services networking) --
+  ;; sin declarar la dependencia acá, `guix pull` intenta compilar este
+  ;; canal aislado y falla con "no code for module" (confirmado en vivo,
+  ;; 2026-08-01). Sintaxis real del manual, "Declaring Channel
+  ;; Dependencies".
+  (dependencies
+   (channel
+    (name nonguix)
+    (url "https://gitlab.com/nonguix/nonguix")
+    (introduction
+     (channel-introduction
+      (version 0)
+      (commit "897c1a470da759236cc11798f4e0a5f7d4d59fbc")
+      (signer "2A39 3FFF 68F4 EF7A 3D29  12AF 6F51 20A0 22FB B2D5"))))
+   (channel
+    (name rosenthal)
+    (url "https://codeberg.org/hako/rosenthal")
+    (branch "trunk")
+    (introduction
+     (channel-introduction
+      (version 0)
+      (commit "7677db76330121a901604dfbad19077893865f35")
+      (signer "13E7 6CD6 E649 C28C 3385  4DF5 5E5A A665 6149 17F7"))))))
