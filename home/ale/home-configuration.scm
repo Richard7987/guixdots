@@ -9,26 +9,25 @@
 ;;; diferencia de graphics/desktop/yubikey.scm, que sí se corrieron contra
 ;;; `guix system build` real.
 ;;;
-;;; Lo que NO se portó (documentado, no simplemente olvidado):
-;;; - oh-my-zsh + Powerlevel10k: solo en canales de terceros (`abbe`,
-;;;   `bugchan`), no agregados a channels.scm todavía -- zsh queda con
-;;;   syntax-highlighting + autosuggestions + fzf-tab (los 3 SÍ oficiales)
-;;;   pero sin el prompt P10k ni los plugins de oh-my-zsh.
-;;; - IntelliJ IDEA Ultimate: solo en `small-guix`, versión vieja (~2023.2)
-;;;   -- no se agregó, evaluar si vale la pena con esa versión.
+;;; oh-my-zsh (abbe), Powerlevel10k (bugchan: zsh-powerlevel10k) e IntelliJ
+;;; IDEA Ultimate (nonguix: idea-ultimate, 232.7754.73 ~2023.2 -- no hay
+;;; versión más nueva en ningún canal indexado, ni siquiera small-guix)
+;;; agregados a pedido explícito 2026-08-01, channels.scm actualizado.
+;;;
+;;; Lo que SIGUE sin portar (documentado, no simplemente olvidado):
 ;;; - DankMaterialShell: no empaquetado en ningún canal -- instalación
 ;;;   manual documentada abajo, corriendo sobre el Quickshell oficial de
 ;;;   `guix`.
-;;; - herdr, x-minecraft-launcher, obsidian: ninguno confirmado disponible
-;;;   en el canal oficial -- AJUSTAR una vez confirmado (obsidian sí
-;;;   apareció en la investigación inicial como disponible vía nonguix,
-;;;   agregado abajo).
+;;; - herdr, x-minecraft-launcher: ninguno confirmado disponible en ningún
+;;;   canal indexado todavía.
 
 (use-modules (gnu home)
+             (guix gexp) ; plain-file
              (gnu home services)
              (gnu home services shells)
              (gnu home services gnupg)
              (gnu home services sound) ; pipewire (Guix Home, NO existe a nivel de sistema)
+             (gnu home services desktop) ; home-dbus-service-type -- pipewire lo requiere
              (gnu packages)
              (gnu packages tex)          ; texstudio, texlive
              (gnu packages rust-apps)    ; tectonic
@@ -37,14 +36,17 @@
              (gnu packages video)        ; mpv
              (gnu packages version-control) ; git, git-delta
              (gnu packages fonts)
-             (gnu packages xdisorg)      ; fzf
+             (gnu packages terminals)    ; fzf
              (gnu packages irc)          ; weechat
              (gnu packages admin)        ; btop
              (gnu packages shellutils)   ; pfetch, zsh-syntax-highlighting, zsh-autosuggestions
              (gnu packages shells)       ; zsh, fzf-tab
              (gnu packages gnupg)
-             (gnu packages security-token) ; yubikey-manager
-             (nongnu packages chrome)      ; obsidian (via nonguix)
+             (gnu packages security-token) ; python-yubikey-manager
+             (nongnu packages productivity) ; obsidian (via nonguix)
+             ((small-guix packages jetbrains) #:prefix small-guix:) ; idea-ultimate-unwrapped
+             ((abbe packages zsh) #:prefix abbe:) ; oh-my-zsh
+             ((bugchan packages shell-utils-extra) #:prefix bugchan:) ; zsh-powerlevel10k
              (ale packages librepods)
              (ale packages clamui)
              (ale packages nezzontli-ctl)
@@ -54,7 +56,7 @@
  (packages
   (list
    ;; --- YubiKey / GPG ---
-   yubikey-manager
+   python-yubikey-manager
    ;; --- TeX / documentos ---
    tectonic
    texstudio
@@ -76,6 +78,10 @@
    font-jetbrains-mono
    ;; --- apps ---
    obsidian
+   small-guix:idea-ultimate-unwrapped ; IntelliJ IDEA Ultimate -- versión 232.7754.73 (~2023.2), no hay más nueva en ningún canal indexado
+   ;; --- zsh: oh-my-zsh + powerlevel10k (canales de terceros, ninguno oficial) ---
+   abbe:oh-my-zsh
+   bugchan:zsh-powerlevel10k
    ;; --- paquetes personales (ale/packages/*.scm, este mismo canal) ---
    librepods
    clamui
@@ -119,7 +125,8 @@ pfetch
              (max-cache-ttl 7200)
              (pinentry-program (file-append pinentry-tty "/bin/pinentry-tty")))) ; AJUSTAR a pinentry-qt si se confirma disponible -- pkgs/home.nix original usaba pinentry-qt (Wayland-friendly)
 
-   (service home-pipewire-service-type) ; wireplumber incluido -- confirmar campos reales del record en la VM antes de aplicar
+   (service home-dbus-service-type) ; pipewire lo requiere (confirmado en vivo: "requires 'dbus'")
+   (service home-pipewire-service-type) ; wireplumber incluido
 
    ;; git: firma GPG por default -- sin home-git-service-type dedicado
    ;; (confirmado que no existe, ver comentario de arriba), config vía

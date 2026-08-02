@@ -35,6 +35,8 @@
   #:use-module (gnu packages fonts)
   #:use-module (gnu packages kde-pim) ; kleopatra
   #:use-module (gnu packages kde-plasma) ; breeze, plasma-integration
+  #:use-module ((saayix packages file-managers) #:prefix saayix:) ; yazi
+  #:use-module ((saayix packages binaries) #:prefix saayix:) ; zen-browser-bin
   #:export (%ale-desktop-services
             %ale-desktop-packages))
 
@@ -69,9 +71,8 @@
         xdg-desktop-portal-hyprland
         nautilus
         gvfs
-        ;; yazi -- SACADO: no está en el canal oficial `guix` pese a lo que
-        ;; sugería una investigación previa (verificado en vivo, búsqueda
-        ;; vacía). Nautilus alcanza por ahora.
+        saayix:yazi ; canal saayix (no está en el oficial `guix`, confirmado en vivo)
+        saayix:zen-browser-bin ; ídem -- reemplazo del inputs.zen-browser de /nixdots
         kleopatra
         breeze
         plasma-integration

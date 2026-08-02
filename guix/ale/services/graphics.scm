@@ -47,15 +47,22 @@
 ;; a nivel de sistema (PAM /etc/environment) en vez de por sesión gráfica,
 ;; porque acá no hay un módulo de home-manager tipo Hyprland que las
 ;; inyecte automáticamente -- Guix Home no tiene ese mecanismo.
+;;
+;; simple-service (no `service` directo): session-environment-service-type
+;; está pensado para EXTENDERSE, no instanciarse -- confirmado en vivo,
+;; "more than one target service of type 'session-environment'" cuando
+;; se instanciaba directo (otro servicio del sistema ya lo usa).
 (define %ale-graphics-session-environment
-  (service session-environment-service-type
-           '(("LIBVA_DRIVER_NAME" . "nvidia")
-             ("GBM_BACKEND" . "nvidia-drm")
-             ("__GLX_VENDOR_LIBRARY_NAME" . "nvidia"))))
-             ;; WLR_NO_HARDWARE_CURSORS -- ya no hace falta con Aquamarine
-             ;; (backend nuevo de Hyprland moderno, reemplaza el wlroots
-             ;; clásico que sí lo necesitaba) -- confirmar en vivo si hay
-             ;; glitches de cursor y agregarlo acá si hace falta.
+  (simple-service 'ale-graphics-environment
+                  session-environment-service-type
+                  '(("LIBVA_DRIVER_NAME" . "nvidia")
+                    ("GBM_BACKEND" . "nvidia-drm")
+                    ("__GLX_VENDOR_LIBRARY_NAME" . "nvidia"))))
+                    ;; WLR_NO_HARDWARE_CURSORS -- ya no hace falta con
+                    ;; Aquamarine (backend nuevo de Hyprland moderno,
+                    ;; reemplaza el wlroots clásico que sí lo necesitaba) --
+                    ;; confirmar en vivo si hay glitches de cursor y
+                    ;; agregarlo acá si hace falta.
 
 (define %ale-graphics-services
   (list (service nvidia-service-type) ; default: driver nvda (=nvda-580, legacy Pascal)
