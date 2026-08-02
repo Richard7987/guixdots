@@ -1,15 +1,15 @@
-;;; channels.scm.example --- lista de canales para reproducir este sistema
+;;; channels.scm --- lista de canales para reproducir este sistema
 ;;;
 ;;; Uso (equivalente a `nix flake update`+pin del flake.lock de /nixdots):
-;;;   guix pull -C channels.scm.example
+;;;   guix pull -C channels.scm
 ;;;
-;;; Extensión NO-.scm a propósito: Guix escanea cualquier archivo .scm
-;;; suelto en la raíz de un repo-canal como módulo potencial del canal
-;;; guixdots -- este archivo no lo es (es la lista de canales para
-;;; INVOCAR guix pull, no contenido del canal en sí), y con extensión
-;;; .scm real causaba "no code for module (channels)"/"Unbound variable:
-;;; channel" al intentar compilarlo como si fuera uno (confirmado en
-;;; vivo, 2026-08-01, tras varias rondas de diagnóstico).
+;;; Vive en la raíz del repo, FUERA de guix/ (ver .guix-channel,
+;;; `(directory "guix")`) -- si quedara alcanzable como contenido del
+;;; canal guixdots, `guix pull` lo escanearía como módulo y fallaría con
+;;; "no code for module (channels)"/"Unbound variable: channel"
+;;; (confirmado en vivo, 2026-08-01, antes de encontrar la sección del
+;;; manual "Package Modules in a Sub-directory" -- mismo problema
+;;; documentado ahí para archivos de `guix deploy`).
 ;;;
 ;;; nonguix: driver propietario de Nvidia (nvidia-driver-580, rama legacy
 ;;; para Pascal), Steam, firmware no libre. Introducción copiada tal cual

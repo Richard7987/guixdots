@@ -1,6 +1,16 @@
 (channel
   (version 0)
-  ;; ale/services/graphics.scm y tailscale.scm usan (nongnu packages nvidia),
+  ;; Restringe el canal a guix/ (donde viven los módulos reales,
+  ;; guix/ale/packages/*.scm y guix/ale/services/*.scm) -- confirmado
+  ;; contra el manual, sección "Package Modules in a Sub-directory":
+  ;; "guix deploy machine configuration files are not valid Guile
+  ;; modules, and treating them as such would make guix pull fail",
+  ;; EXACTAMENTE el problema real que tuvieron hosts/ale/config.scm y
+  ;; home/ale/home-configuration.scm (scripts, no módulos) al dejarlos
+  ;; alcanzables desde la raíz del canal (2026-08-01, varias rondas de
+  ;; diagnóstico antes de encontrar esta sección del manual).
+  (directory "guix")
+  ;; guix/ale/services/graphics.scm y tailscale.scm usan (nongnu packages nvidia),
   ;; (nongnu services nvidia) y (rosenthal services networking) --
   ;; sin declarar la dependencia acá, `guix pull` intenta compilar este
   ;; canal aislado y falla con "no code for module" (confirmado en vivo,
