@@ -150,11 +150,10 @@ Todo lo de arriba se completó. Resumen:
   de agreety/wlgreet/gtkgreet-sway) o aceptar agreety definitivamente.
 - **DankMaterialShell**: instalación manual documentada en
   `home-configuration.scm`, no ejecutada/probada todavía en la VM.
-- **Tailscale**: `tailscale.scm` (servicio + exit-node Shepherd) NO se
-  validó contra Guix real -- se escribió antes de tener Rosenthal
-  pulled y no se volvió a correr `guix system build` después. Falta
-  confirmar que el campo `one-shot?` de `shepherd-service` existe de
-  verdad en esta versión de Shepherd.
+- ~~Tailscale sin validar~~ -- confirmado en vivo (2026-08-02): carga y
+  evalúa limpio, `one-shot?` existe de verdad en esta versión de
+  Shepherd, el service-type real se llama `tailscaled`
+  (rosenthal/services/networking.scm).
 - **UUIDs reales**: `hosts/ale/config.scm` sigue con placeholders para
   los UUIDs de las particiones btrfs/EFI -- solo se resuelven con la
   instalación real.
