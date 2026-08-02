@@ -92,17 +92,76 @@ Guix instalado, sin forma de correr `guix download`/`guix hash` de verdad.
 Hay que recalcularlos en la VM antes de intentar construir cualquiera de
 estos paquetes.
 
-## Pendiente
+## Estado final de esta ronda (2026-08-02)
 
-- Levantar la VM QEMU (imagen QCOW2 precompilada de Guix 1.5.0) para poder
-  correr `guix download`, `guix import crate/go`, y probar de verdad
-  Quickshell+DMS.
-- Escribir `config.scm` (sistema) y `home-configuration.scm` (Guix Home)
-  reales, cubriendo lo que sí mapea directo: base, red, YubiKey/pcscd,
-  Bluetooth, zram, Btrfs, Hyprland+AQ_DRM_DEVICES, Tailscale, TeX/
-  LibreOffice, fuentes, etc.
-- Terminar los `.scm` de slides/librepods/psysonic una vez con Guix real
-  disponible para correr los importadores.
-- Escribir el greeter (`greetd` + algo, ya que ni noctalia-greeter ni
-  dms-greeter están empaquetados -- dms-greeter habría que instalarlo a
-  mano igual que DMS).
+Todo lo de arriba se completó. Resumen:
+
+- **VM QEMU levantada** (Guix System 1.5.0, imagen oficial), con SSH real
+  (llave inyectada offline vía `qemu-nbd` porque la imagen demo no trae
+  `sshd` -- ver `guix-vm/inject-ssh-key.sh` y el `config.scm` de la VM
+  parcheado para agregar `openssh-service-type`) y socket de monitor QEMU
+  para control programático sin pedirle nada a la terminal gráfica.
+- **`clamui` y `nezzontli-ctl`: compilan y CORREN de verdad** (`guix build`
+  real, no dry-run; `ctl --help` dibuja su TUI completa). Fixes reales
+  encontrados: version pins de clamui más nuevos que lo empaquetado en
+  Guix (8 de 10 deps, relajados con `substitute*`), backends de build
+  (setuptools/hatchling) sin declarar como `native-inputs`.
+- **`librepods` y `slides`: resuelven el árbol completo** (`--dry-run`
+  limpio, no se intentó build real por tiempo -- 576 crates / 535
+  paquetes Go). `guix import crate -r`/`guix import go -r
+  --pin-versions` corridos de verdad; encontrados y corregidos varios
+  bugs reales del propio importador (no del enfoque): `#:subdir`
+  referenciando un símbolo sin definir en paquetes del monorepo
+  `charmbracelet/x`, `license unknown-license!` sin prefijo/inexistente,
+  y un patrón sistemático de nombres `-vN-VERSION` que no coinciden ni
+  con el nombre generado localmente ni con el oficial. También: fallo de
+  red real en el guest (QEMU `-nic user` es IPv4-only, resuelto con
+  `sysctl net.ipv6.conf.all.disable_ipv6=1`).
+- **`psysonic`/`x-minecraft-launcher`**: siguen sin escribir, documentado
+  en `packages/PENDIENTES.md` -- confirmado que son semanas de trabajo,
+  no días.
+- **`channels.scm` real, con los 9 canales, corre `guix pull -C
+  channels.scm` limpio de punta a punta** -- incluye el propio canal
+  `guixdots` (antes fallaba: cualquier `.scm` suelto en la raíz de un
+  repo-canal se escanea como módulo del canal mismo, y `config.scm`/
+  `home-configuration.scm` son *scripts*, no módulos Guile -- arreglado
+  restringiendo el canal a `guix/` vía `(directory "guix")` en
+  `.guix-channel`, documentado en el manual real, sección "Package
+  Modules in a Sub-directory". `channels.scm` vive fuera de `guix/`, a
+  salvo del escaneo. Agregados a pedido explícito: `saayix` (yazi,
+  zen-browser-bin), `abbe` (oh-my-zsh), `bugchan` (powerlevel10k),
+  `small-guix` (idea-ultimate, 232.7754.73 ~2023.2 -- no hay más nueva
+  en ningún canal indexado). También hizo falta una rama `keyring` en
+  el propio repo (llave GPG pública) y un `.guix-authorizations` con el
+  formato real (`(version 0)`, no anidado) para que la cadena de
+  autenticación de `guix pull` funcionara.
+- **`config.scm` y `home-configuration.scm`: `--dry-run` limpio contra
+  Guix real**, los 9 canales, greetd+agreety+Hyprland (sin
+  noctalia-greeter/dms-greeter, ninguno empaquetado en ningún canal
+  encontrado -- pendiente real, ver abajo), Nvidia offload,
+  Tailscale+Rosenthal, YubiKey/pcscd, TeX/LibreOffice, oh-my-zsh/
+  powerlevel10k/IntelliJ.
+
+## Pendiente real para la próxima ronda
+
+- **Greeter con tema**: `agreety` (login de texto plano) funciona pero no
+  comparte tema con Hyprland/DMS -- construir un
+  `greetd-tuigreet-session` a mano (no hay helper en Guix, a diferencia
+  de agreety/wlgreet/gtkgreet-sway) o aceptar agreety definitivamente.
+- **DankMaterialShell**: instalación manual documentada en
+  `home-configuration.scm`, no ejecutada/probada todavía en la VM.
+- **Tailscale**: `tailscale.scm` (servicio + exit-node Shepherd) NO se
+  validó contra Guix real -- se escribió antes de tener Rosenthal
+  pulled y no se volvió a correr `guix system build` después. Falta
+  confirmar que el campo `one-shot?` de `shepherd-service` existe de
+  verdad en esta versión de Shepherd.
+- **UUIDs reales**: `hosts/ale/config.scm` sigue con placeholders para
+  los UUIDs de las particiones btrfs/EFI -- solo se resuelven con la
+  instalación real.
+- **Intentar una build real** (no `--dry-run`) de `librepods`/`slides` y,
+  eventualmente, de `config.scm`/`home-configuration.scm` completos --
+  esta ronda solo validó que el *grafo* resuelve, no que todo compila
+  de punta a punta (librepods en particular, con iced/wgpu, es
+  candidato a fallar en runtime-linking pese a resolver bien).
+- **psysonic / x-minecraft-launcher**: sin empezar, ver
+  `packages/PENDIENTES.md`.
